@@ -1,4 +1,4 @@
-﻿using practice_7.Models;
+﻿using MessengerClient;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -18,13 +18,15 @@ namespace practice_7
 
     public partial class MainWindow : Window
     {
-        private MessengerClient _client;
+        private MessengerClientClass _client;
+        private CancellationTokenSource _cancellationTokenSource;
 
         public MainWindow()
         {
             InitializeComponent();
-            _client = new MessengerClient("26.17.59.203", 5000);
-            _client.MessageReceived += OnMessageReceived;
+            _cancellationTokenSource = new CancellationTokenSource();
+            _client = new MessengerClientClass("127.0.0.1", 5000);
+            //_client.MessageReceived += OnMessageReceived;
         }
 
         private async void OnMessageReceived(object sender, string message)
@@ -32,7 +34,7 @@ namespace practice_7
             pole_message.Items.Add(message);
         }
 
-        private async void OnSendButtonClick(object sender, RoutedEventArgs e)
+        private async void btn_send_Click(object sender, RoutedEventArgs e)
         {
             string message = your_message.Text;
             await _client.SendMessageAsync(message);
@@ -41,6 +43,7 @@ namespace practice_7
 
         private void OnWindowClosing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            _cancellationTokenSource.Cancel();
             _client.Close();
         }
     }
